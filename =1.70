@@ -1,0 +1,7 @@
+Collecting six
+  Downloading six-1.9.0-py2.py3-none-any.whl
+Installing collected packages: six
+  Found existing installation: six 1.4.1
+    Uninstalling six-1.4.1:
+      Successfully uninstalled six-1.4.1
+Successfully installed six-1.9.0

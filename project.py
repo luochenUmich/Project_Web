@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DATABASE='/tmp/projects.db',
-    DEBUG=True,
+    DEBUG=False,
     SECRET_KEY='SECRET',
     USERNAME='admin',
     PASSWORD='default'
