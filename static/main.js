@@ -1,7 +1,7 @@
 $(function() {
 	$("#addPeople").click(function(e) {
 		e.preventDefault();
-		$("#addPeopleli").before('<li class="col-sm-1"> <input type="text" class="form-control" name="people[][]"> <button class="close deletePeople" type="button" >×</button></li>');
+		$("#addPeopleli").before('<li class="col-sm-2"> <input type="text" class="form-control" name="people_name"> <button class="close deletePeople" type="button" >×</button></li>');
 	});
 
 	$(document).on('click', '.deletePeople', function() {
@@ -16,7 +16,7 @@ $(function() {
 
 	$(document).on('click', '#addNews', function(e) {
 		e.preventDefault();
-		$('#addNews').before('<input type="text" class="form-control" name="news[title][]" placeholder="News Title"><input type="text" class="form-control" name="news[descripiton][]" placeholder="News descripiton"><button class="close deleteNews" type="button" >×</button>');
+		$('#addNews').before('<input type="text" class="form-control" name="news_title" placeholder="News Title"><input type="text" class="form-control" name="news_description" placeholder="News descripiton"><button class="close deleteNews" type="button" >×</button>');
 	});
 
 	$(document).on('click', '.deletePublication', function() {
@@ -26,7 +26,6 @@ $(function() {
 
 	$(document).on('click', '#addPublication', function(e) {
 		e.preventDefault();
-		$('#addPublication').before('<input type="text" class="form-control" name="publications[descripiton][]" placeholder="Publication descripiton"><button class="close deletePublication" type="button" >×</button>');
+		$('#addPublication').before('<input type="text" class="form-control" name="publication_description" placeholder="Publication descripiton"><button class="close deletePublication" type="button" >×</button>');
 	});
-
 });

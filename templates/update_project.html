@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block body %}
+ <div class="container">
+ 	<div class="row">
+		<form class='form-horizontal' action='{{ url_for("update_project", project_id=project.id) }}' method="post">
+			<div class="form-group">
+				<label class="col-sm-2 control-label">Project Name:</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" placeholder="Project Name" name="project_name" value="{{ project.name }}">
+				 </div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">Title:</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" placeholder="Project Title" name="project_title" value="{{ project.title }}">
+				</div>
+			</div>
+		  <div class="form-group">
+		    <label class="col-sm-2 control-label">People:</label>
+				<div class="col-sm-10">
+			    <ul class="list-inline people">
+			    	{% for people_name in people[project.id] %}
+			    		<li class="col-sm-2"> 
+			    			<input type="text" class="form-control" name="people_name" value="{{ people_name }}"> 
+			    			<button class="close deletePeople" type="button" >×</button>
+			    		</li>
+			    	{% endfor %}
+			      <li class="col-sm-1" id="addPeopleli"><button type="button" class="btn" id="addPeople">Add</button></li>
+			    </ul>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label class="col-sm-2 control-label">News:</label>
+				<div class="col-sm-10">
+					{% for news in news[project.id] %}
+						<input type="text" class="form-control" name="news_title" placeholder="News Title" value="{{ news.title }}">
+						<input type="text" class="form-control" name="news_description" placeholder="News descripiton" value="{{ news.description }}">
+						<button class="close deleteNews" type="button" >×</button>
+					{% endfor %}
+		      <button type="button" class="btn" id="addNews">Add</button>
+		    </div>
+		  </div>
+		  <div class="form-group">
+		  	<label class="col-sm-2 control-label">Publications:</label>
+		  	<div class="col-sm-10">
+		  		{% for publication in publications[project.id] %}
+						<input type="text" class="form-control" name="publication_description" placeholder="Publication descripiton" value="{{ publication.description }}">
+						<button class="close deletePublication" type="button" >×</button>					
+					{% endfor %}
+		  		<button type="button" class="btn" id="addPublication">Add</button>
+		  	</div>
+		  </div>
+		  <div class="form-group">
+				<label class="col-sm-2 control-label">Descriptions:</label>
+				<div class="col-sm-10">
+					<textarea class="form-control" rows="4" placeholder="Project Description" name="project_description">{{ project.description }}</textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class=" col-sm-offset-2 col-sm-offset-10">		
+					<div class="btn-group">
+				  	<button type="submit" class="btn btn-primary">Save</button>
+					  <a href='{{ url_for("show_projects") }}' class="btn btn-default" type="">Cancel</a>
+				  </div>
+				</div>
+			</div>
+		</form>
+		</div>
+</div>
+{% endblock %}

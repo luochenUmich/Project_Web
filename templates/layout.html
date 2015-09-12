@@ -48,9 +48,10 @@
   </nav>
 
   <div class="page">
-    {% for message in get_flashed_messages() %}
+<!--     {% for message in get_flashed_messages() %}
       <div class="alert alert-success" role="alert">{{ message }}</div>
-    {% endfor %}
+      <p class="text-primary">{{ message }}</p>
+    {% endfor %} -->
     {% block body %}{% endblock %}
   </div>
 

@@ -44,6 +44,44 @@ def get_db():
         g.sqlite_db = connect_db()
     return g.sqlite_db
 
+def get_project_info(db, project_id, people, news, publications):
+    all_people = db.execute('select * from people where project_id=? order by id desc',
+                            [project_id]).fetchall()
+    people_name = []
+    for single_people in all_people:
+        people_name.append(single_people['name'])
+    people[project_id] = people_name
+    news[project_id] = db.execute('select * from news where project_id=? order by id desc',
+                        [project_id]).fetchall()
+    publications[project_id] = db.execute('select * from publications where project_id=? order by id desc',
+                        [project_id]).fetchall()
+
+def add_project_helper(db):
+    # insert into project
+    db.execute('insert into projects (name, title, description) values (?, ?, ?)',
+           [request.form['project_name'], request.form['project_title'], request.form['project_description']])
+    db.commit()
+    project_id = db.execute('select max(id) from projects').fetchall()[0]['max(id)']
+    # insert into people
+    for people_name in request.form.getlist('people_name'):
+        db.execute('insert into people (name, project_id) values (?, ?)', [people_name, project_id])
+    # insert into news
+    news_title = request.form.getlist('news_title')
+    news_description = request.form.getlist('news_description')
+    for i in range(len(news_title)):
+        db.execute('insert into news (title, description, project_id) values (?, ?, ?)', [news_title[i], 
+            news_description[i], project_id])
+    # insert into publications
+    for description in request.form.getlist('publication_description'):
+        db.execute('insert into publications (description, project_id) values (?, ?)', [description, project_id])
+    db.commit()
+
+def delete_project_helper(db, project_id):
+    db.execute('delete from projects where id=?', [project_id])
+    db.execute('delete from people where project_id=?', [project_id])
+    db.execute('delete from publications where project_id=?', [project_id])
+    db.execute('delete from news where project_id=?', [project_id])
+    db.commit()
 
 @app.teardown_appcontext
 def close_db(error):
@@ -56,24 +94,13 @@ def close_db(error):
 def show_projects():
     db = get_db()
     projects = db.execute('select * from projects order by id desc').fetchall()
+    people = dict()
+    news = dict()
+    publications = dict()
     for project in projects:
-        all_people = db.execute('select * from people where project_id=? order by id desc',
-                            [project['id']]).fetchall()
-        people_name = []
-        for single_people in all_people:
-            people_name.append(single_people['name'])
-        people = dict()
-        people[project['id']] = people_name
-        news = dict()
-        news[project['id']] = db.execute('select * from news where project_id=? order by id desc',
-                            [project['id']]).fetchall()
-        publications = dict()
-        publications[project['id']] = db.execute('select * from publications where project_id=? order by id desc',
-                            [project['id']]).fetchall()
+        get_project_info(db, project['id'], people, news, publications)
     return render_template('show_projects.html', projects=projects, people=people, news=news, publications=publications)
 
-
-# Todo figure out how to deal with multiple add
 @app.route('/add', methods=['GET','POST'])
 def add_project():
     if not session.get('logged_in'):
@@ -82,47 +109,37 @@ def add_project():
         return render_template('add_project.html')
     else:
         db = get_db()
-        # db.execute('insert into entries (title, text) values (?, ?)',
-        #            [request.form['title'], request.form['text']])
-        db.commit()
-        flash('New project was successfully posted')
+        add_project_helper(db)
+        flash('New project was successfully added')
         return redirect(url_for('show_projects'))
 
-# @app.route('/add_people', methods=['POST'])
-# def add_entry():
-#     if not session.get('logged_in'):
-#         abort(401)
-#     db = get_db()
-#     db.execute('insert into entries (title, text) values (?, ?)',
-#                [request.form['title'], request.form['text']])
-#     db.commit()
-#     flash('New project was successfully posted')
-#     return redirect(url_for('show_projects'))
+@app.route('/delete_project/<project_id>', methods=['GET'])
+def delete_project(project_id):
+    if not session.get('logged_in'):
+        abort(401)
+    db = get_db()
+    project_id = int(project_id)
+    delete_project_helper(db, project_id)
+    return redirect(url_for('show_projects'))
 
-# @app.route('/add_news', methods=['POST'])
-# def add_entry():
-#     if not session.get('logged_in'):
-#         abort(401)
-#     db = get_db()
-#     db.execute('insert into entries (title, text) values (?, ?)',
-#                [request.form['title'], request.form['text']])
-#     db.commit()
-#     flash('New project was successfully posted')
-#     return redirect(url_for('show_projects'))
-
-# @app.route('/add_publication', methods=['POST'])
-# def add_entry():
-#     if not session.get('logged_in'):
-#         abort(401)
-#     db = get_db()
-#     db.execute('insert into entries (title, text) values (?, ?)',
-#                [request.form['title'], request.form['text']])
-#     db.commit()
-#     flash('New project was successfully posted')
-#     return redirect(url_for('show_projects'))
-
-
-
+@app.route('/update_project/<project_id>', methods=['GET', 'POST'])
+def update_project(project_id):
+    if not session.get('logged_in'):
+        abort(401)
+    db = get_db()
+    project_id = int(project_id)
+    if request.method == 'GET':
+        project = db.execute('select * from projects where id=?', [project_id]).fetchall()[0]
+        people = dict()
+        news = dict()
+        publications = dict()
+        get_project_info(db, project_id, people, news, publications)
+        return render_template('update_project.html', project=project, people=people, news=news, publications=publications)
+    else:
+        delete_project_helper(db, project_id)
+        add_project_helper(db)
+        return redirect(url_for('show_projects'))
+    
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
